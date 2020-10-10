@@ -1,9 +1,7 @@
-// const { models } = require("./src/models/index");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
-// const User = models.User;
 // Sign up and Save a new User
 
 exports.signup = async (req, res) => {
@@ -12,14 +10,17 @@ exports.signup = async (req, res) => {
   } else {
     try {
       const { name, email, password } = req.body;
+      //Check if the email already exist in the database
       let user = await User.findOne({
         email,
       });
       if (user) {
+        //If user exists, send a message back
         return res.status(400).json({
           data: "User Already Exists",
         });
       }
+      //If user doesn't exist, create a new user
       user = new User({
         name,
         email,
@@ -29,12 +30,6 @@ exports.signup = async (req, res) => {
       user.password = await bcrypt.hash(password, salt);
       const savedUser = await user.save();
 
-      if (!user) {
-        return res.status(400).json({
-          status: "fail",
-          message: "user already exist",
-        });
-      }
       res.status(201).json({
         message: "User successfully created!",
         data: savedUser,
